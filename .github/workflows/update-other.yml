@@ -1,0 +1,32 @@
+name: "Update other"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-other:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update other branch
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.git.updateRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'heads/other',
+              sha: context.sha,
+            })
+
+      # If e.g. you have a deploy workflow that should be triggered
+      # on the 'other' branch when it is pushed to.
+      - name: Trigger deploy workflow
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy.yml',
+              ref: 'other',
+            })
